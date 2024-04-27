@@ -1,0 +1,130 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Usar modelo Sentencia.">
+  <div class="hero min-h-screen bg-base-200 mt-0">
+    <div class="hero-content text-center">
+      <div>
+        <h1 class="text-4xl font-bold text-violet-400">HOLA AQUI PUEDES</h1>
+        <p class="mt-5">
+          ¡Elimina espacios y saltos de línea en tu modelo de sentencia con
+          facilidad!
+        </p>
+        <p class="mb-5 mt-1">
+          Pega tu modelo de sentencia en el cuadro de entrada y haz clic en el
+          botón para obtener un texto limpio y sin espacios innecesarios.
+        </p>
+        <div class="container mx-auto flex flex-col items-center">
+          <div class="flex flex-col w-full border-opacity-50">
+            <div
+              class="grid h-full w-full card bg-base-300 rounded-box place-items-center"
+            >
+              <textarea
+                class="textarea textarea-accent w-full h-20 text-xs"
+                placeholder="Cuadro de Entrada... \n CTRL+V para pegar"
+                id="texto-entrada"></textarea>
+            </div>
+            <div class="divider">RESULTADO</div>
+
+            <div
+              class="grid h-full w-full card bg-base-300 rounded-box place-items-center mb-5"
+            >
+              <textarea
+                class="textarea textarea-accent w-full h-72 text-xs"
+                placeholder="Cuadro de Salida... \n aqui vas a ver el resultado  "
+                id="texto-salida"></textarea>
+            </div>
+          </div>
+
+          <div
+          id="mensajeConfirmacion"
+          role="alert"
+          class="alert alert-success hidden mt-2 mb-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="stroke-current shrink-0 h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            ><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg
+          >
+          <span>Listo para pegar en tu archivo word!</span>
+        </div>
+
+          <button class="btn btn-primary" id="btn-procesar"
+            >Mostrar y Copiar</button
+          >
+
+         
+
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  function obtenerValorEntrada(
+    elemento: HTMLElement,
+  ): elemento is HTMLTextAreaElement {
+    return elemento instanceof HTMLTextAreaElement;
+  }
+
+  const textoEntrada = document.getElementById("texto-entrada");
+  const btnProcesar = document.getElementById("btn-procesar");
+  const textoSalida = document.getElementById("texto-salida");
+
+  btnProcesar.addEventListener("click", () => {
+    // const texto = textoEntrada.value;
+
+    if (obtenerValorEntrada(textoEntrada)) {
+      const texto = textoEntrada.value;
+      // Procesa el texto
+      // Formatear el texto
+      const textoFormateado = texto
+        .replace(/\r\n|\n|\r/g, " ") // Eliminar saltos de línea y reemplazarlos por un espacio
+        .replace(/ +/g, " ") // Reemplazar espacios en blanco por espacios normales
+        .replace(/AUTOS Y VISTOS:/g, "\nAUTOS Y VISTOS:\n") // Agregar saltos de línea antes de "AUTOS Y VISTOS"
+        .replace(/RESULTA:/g, "\nRESULTA:\n") // Agregar saltos de línea antes de "RESULTA"
+        .replace(/CONSIDERANDO:/g, "\nCONSIDERANDO:\n") // Agregar saltos de línea antes de "CONSIDERANDO"
+        .replace(/RESUELVE:/g, "\nRESUELVE:\n"); // Agregar saltos de línea antes de "RESUELVE"
+
+      // Mostrar el texto formateado
+      textoSalida.textContent = textoFormateado;
+
+      if (obtenerValorEntrada(textoSalida)) {
+        const textoWord = textoSalida.textContent;
+        // Copiar el texto al portapapeles
+        navigator.clipboard
+          .writeText(textoWord)
+          .then(() => {
+            console.log("Texto copiado al portapapeles correctamente");
+            // Mostrar el mensaje de confirmación
+            mostrarMensajeConfirmacion();
+          })
+          .catch((err) => {
+            console.error("Error al copiar el texto al portapapeles:", err);
+          });
+      } else {
+        // Maneja el caso en el que textoSalida no sea un textarea
+        console.error("Tipo de elemento inesperado para textoSalida");
+      }
+    } else {
+      // Maneja el caso en el que textoEntrada no sea un textarea
+      console.error("Tipo de elemento inesperado para textoEntrada");
+    }
+  });
+
+  function mostrarMensajeConfirmacion() {
+    const mensajeConfirmacion = document.getElementById("mensajeConfirmacion");
+    mensajeConfirmacion.classList.remove("hidden"); // Muestra el mensaje
+    setTimeout(() => {
+      mensajeConfirmacion.classList.add("hidden"); // Oculta el mensaje después de un tiempo
+    }, 4000); // 3000 milisegundos (3 segundos)
+  }
+</script>
