@@ -1,0 +1,127 @@
+---
+// import { NumeroALetras } from "../js/numeros-a-letras.js";
+import Layout from "../layouts/Layout.astro";
+import BtnCopy from "../components/Btn-copy.astro";
+---
+
+<Layout title="Conversor de numeros a letras">
+    <main class="min-h-screen bg-base-200 mt-0">
+        <div class="hero-content text-center">
+            <div>
+                <h1 class="text-4xl font-bold text-violet-400">
+                    HOLA, AQUI PUEDES
+                </h1>
+                <p class="mt-5">
+                    ¡Convertir los números a letras sin esfuerzo!
+                </p>
+                <p class="mb-5 mt-1">
+                    Ingresa el importe con punto decimal (ej: 5245.78) y obtén el resultado. Ideal para Rgulacion de Honorarios, Embargos y más.
+                </p>
+                <div class="container mx-auto flex flex-col items-center">
+                    <div class="flex flex-col w-full border-opacity-50">
+                        <div
+                            class="grid h-full w-full card bg-base-300 rounded-box place-items-center"
+                        >
+                            <input
+                                id="texto-entrada"
+                                type="number"
+                                placeholder="ej. 5245.78"
+                                class="input input-bordered input-info w-full text-center"
+                            />
+                        </div>
+                        <div class="divider">RESULTADO</div>
+                        <input id="texto-salida" type="text" placeholder="PESOS CINCO MIL DOSCIENTOS CUARENTA Y CINCO CON SETENTA Y OCHO CENTAVOS" class="input input-bordered input-warning w-full text-center appearance-none pointer-events-none bg-gray-900" />
+
+                        <div
+                            class="grid h-full w-full card bg-base-300 rounded-box place-items-center mb-5"
+                        >
+                        </div>
+
+                    </div>
+
+                </div>
+                <button class="btn btn-primary" id="btn-copiar">Copiar texto</button>
+
+                        <div
+                            id="mensajeConfirmacion"
+                            role="alert"
+                            class="alert alert-success hidden mt-2 mb-2"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="stroke-current shrink-0 h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                ><path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                ></path></svg
+                            >
+                            <span>Listo para pegar en tu archivo word!</span>
+                        </div>
+                        
+            </div>
+        </div>
+    </main>
+</Layout>
+
+
+
+<script>
+
+import { NumeroALetras } from "../js/numeros-a-letras.js";
+
+  
+    const textoEntrada = document.querySelector<HTMLInputElement>("#texto-entrada")
+    const btnCopiar = document.getElementById("btn-copiar");
+    const textoSalida= document.querySelector<HTMLInputElement>("#texto-salida");
+        
+
+    textoEntrada.addEventListener('input', function() {
+        // btncopiar.addEventListener("click", () => { 
+            
+            const numero = textoEntrada.value;
+            textoSalida.value = NumeroALetras(numero);
+                
+     
+    });
+
+     
+    textoEntrada.addEventListener('keypress', function(e) {
+            const allowedChars = /^[0-9.,]+$/; // Permitir números, punto y coma
+            if (!allowedChars.test(e.key)) {
+                e.preventDefault();
+            } 
+            });
+
+        
+     btnCopiar.addEventListener("click", () => {
+
+   
+          const textoWord = textoSalida.value;
+          // Copiar el texto al portapapeles
+          navigator.clipboard
+            .writeText(textoWord)
+            .then(() => {
+              console.log("Texto copiado al portapapeles correctamente");
+              // Mostrar el mensaje de confirmación
+              mostrarMensajeConfirmacion();
+            })
+            .catch((err) => {
+              console.error("Error al copiar el texto al portapapeles:", err);
+            });
+ 
+
+    });
+  
+    function mostrarMensajeConfirmacion() {
+      const mensajeConfirmacion = document.getElementById("mensajeConfirmacion");
+      mensajeConfirmacion.classList.remove("hidden"); // Muestra el mensaje
+      setTimeout(() => {
+        mensajeConfirmacion.classList.add("hidden"); // Oculta el mensaje después de un tiempo
+      }, 4000); // 3000 milisegundos (3 segundos)
+    }
+  </script>
+  
