@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
 ---
 
 <Layout title="Lector de Código de Barras">
@@ -10,14 +11,17 @@ import Layout from "../layouts/Layout.astro";
                     HOLA, AQUI PUEDES
                 </h1>
                 <p class="mt-5">
-                    Inicia el escáner usando la cámara de tu PC o celular para escanear un código de barras y mostrar el número en pantalla. 
+                    Inicia el escáner usando la cámara de tu PC o celular para
+                    escanear un código de barras y mostrar el número en
+                    pantalla.
                 </p>
                 <p class="mb-5 mt-1">
-                    También puedes guardar la información en una base de datos o exportarla a un archivo Excel de Google. Haz clic en el botón 'Iniciar Escáner' para comenzar.
+                    También puedes guardar la información en una base de datos https://httpbin.org/post. Haz clic en el
+                    botón 'Iniciar Escáner' para comenzar.
                 </p>
 
                 <div class="container mx-auto flex flex-col items-center">
-                    <div class = "bg-sky-600 p-3 rounded-lg">
+                    <div class="bg-sky-600 p-3 rounded-lg">
                         <div class="mockup-code text-left">
                             <code>
                                 <p class="mx-10">
@@ -30,8 +34,8 @@ import Layout from "../layouts/Layout.astro";
                                     <span class="text-yellow-500 font-bold"
                                         >67890</span
                                     >
-                                    <span class="text-red-500 font-bold"
-                                        >5</span>
+                                    <span class="text-red-500 font-bold">5</span
+                                    >
                                 </p>
                                 <p class="mx-11">
                                     <span class="text-red-500"
@@ -68,71 +72,144 @@ import Layout from "../layouts/Layout.astro";
                     >
                     </div>
 
-                    <div id="result" class="text-center m-4">resuldo</div>
+                    <div id="result" class="text-center m-4">
+                        Código detectado: 000000000
+                    </div>
 
-                    <button id="btnScanner" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Iniciar escáner
+                    <div>
+                        <button
+                            id="btnScanner"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        >
+                            Iniciar escáner
+                        </button>
+
+                        <button
+                            id="btnEnviar"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        >
+                            Enviar Código
+                        </button>
+
+                        <button
+                        id="btnStop"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Detener escáner
                     </button>
+                       
+                    </div>
+
+                    <div id="data" class="text-center m-4">
+                        DATA:
+                    </div>
                 </div>
             </div>
         </div>
-
-    </main>   
-    
+    </main>
 </Layout>
 
+<style>
+    #interactive {
+        width: 100%; /* Puedes ajustar el ancho al porcentaje o valor deseado */
+        max-width: 600px; /* Ancho máximo deseado, ajusta según tus necesidades */
+        height: 450px; /* Altura deseada, ajusta según tus necesidades */
+        border: 1px solid black; /* Borde opcional para visualización */
+        margin: 0 auto; /* Centrando el contenedor si es necesario */
+    }
+</style>
 
-        <style>
-            #interactive {
-                width: 100%; /* Puedes ajustar el ancho al porcentaje o valor deseado */
-                max-width: 600px; /* Ancho máximo deseado, ajusta según tus necesidades */
-                height: 450px; /* Altura deseada, ajusta según tus necesidades */
-                border: 1px solid black; /* Borde opcional para visualización */
-                margin: 0 auto; /* Centrando el contenedor si es necesario */
-            }
-        </style>
+<!-- Cargar la biblioteca QuaggaJS -->
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"
+    defer>
+</script>
 
-        <!-- Cargar la biblioteca QuaggaJS -->
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"
-            defer></script>
-            <script>
+    
+<script>
+        let detectedCode = null;
 
-           const btnScanner = document.getElementById("btnScanner");
 
-            btnScanner.addEventListener("click", () => {
-    // const texto = textoEntrada.value;
-                    if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
-                        Quagga.init({
-                            inputStream: {
-                                name: "Live",
-                                type: "LiveStream",
-                                target: document.querySelector('#interactive')
-                            },
-                            decoder: {
-                                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
-                            }
-                        }, function (err) {
-                            if (err) {
-                                console.log(err);
-                                return;
-                            }
-                            console.log("Initialization finished. Ready to start");
-                            Quagga.start();
-                        });
-        
-                        Quagga.onDetected(function (result) {
-                            var code = result.codeResult.code;
-                            document.querySelector('#result').innerText = 'Código detectado: ' + code;
-        
-                            // Aquí puedes añadir lógica adicional como enviar el código a una API, etc.
-                            console.log('Código detectado:', code);
-                        });
-                    } else {
-                        alert("Tu navegador no soporta acceso a la cámara.");
-                    }
+        const btnScanner = document.getElementById("btnScanner");
+        const btnStop = document.getElementById("btnStop");
+        const btnEnviar = document.getElementById("btnEnviar");
+    
+        btnScanner.addEventListener("click", () => {
+            if (
+                navigator.mediaDevices &&
+                typeof navigator.mediaDevices.getUserMedia === "function"
+            ) {
+                Quagga.init(
+                    {
+                        inputStream: {
+                            name: "Live",
+                            type: "LiveStream",
+                            target: document.querySelector("#interactive"),
+                        },
+                        decoder: {
+                            readers: [
+                                "code_128_reader",
+                                "ean_reader",
+                                "ean_8_reader",
+                                "code_39_reader",
+                                "code_39_vin_reader",
+                                "codabar_reader",
+                                "upc_reader",
+                                "upc_e_reader",
+                                "i2of5_reader",
+                            ],
+                        },
+                    },
+                    function (err) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        console.log("Initialization finished. Ready to start");
+                        Quagga.start();
+                    },
+                );
+    
+                Quagga.onDetected(function (result) {
+                    detectedCode = result.codeResult.code;
+                    document.querySelector("#result").innerText =
+                        "Código detectado: " + detectedCode;
+                    console.log("Código detectado:", detectedCode);
                 });
-                
-                
-                </script>
+            } else {
+                alert("Tu navegador no soporta acceso a la cámara.");
+            }
+        });
+    
+        btnEnviar.addEventListener("click", () => {
+            if (detectedCode) {
+                const YOUR_WEB_APP_URL = "https://httpbin.org/post";
+                fetch(YOUR_WEB_APP_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ code: detectedCode }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("Success:", data);
+                        // alert("Código enviado correctamente a https://httpbin.org/");
+                        document.querySelector("#data").innerText =
+                            "DATA: " + data.data;
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        alert("Error al enviar el código a https://httpbin.org/");
+                    });
+            } else {
+                alert("No se ha detectado ningún código de barras para enviar.");
+            }
+        });
+
+        btnStop.addEventListener("click", () => {
+            Quagga.stop();
+        });
+    </script>
+    
 
