@@ -1,0 +1,138 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Lector de Código de Barras">
+    <main class="min-h-screen bg-base-200 mt-0">
+        <div class="hero-content text-center">
+            <div>
+                <h1 class="text-4xl font-bold text-violet-400">
+                    HOLA, AQUI PUEDES
+                </h1>
+                <p class="mt-5">
+                    Inicia el escáner usando la cámara de tu PC o celular para escanear un código de barras y mostrar el número en pantalla. 
+                </p>
+                <p class="mb-5 mt-1">
+                    También puedes guardar la información en una base de datos o exportarla a un archivo Excel de Google. Haz clic en el botón 'Iniciar Escáner' para comenzar.
+                </p>
+
+                <div class="container mx-auto flex flex-col items-center">
+                    <div class = "bg-sky-600 p-3 rounded-lg">
+                        <div class="mockup-code text-left">
+                            <code>
+                                <p class="mx-10">
+                                    Código de barras: <span
+                                        class="text-blue-500 font-bold">0</span
+                                    >
+                                    <span class="text-green-500 font-bold"
+                                        >12345</span
+                                    >
+                                    <span class="text-yellow-500 font-bold"
+                                        >67890</span
+                                    >
+                                    <span class="text-red-500 font-bold"
+                                        >5</span>
+                                </p>
+                                <p class="mx-11">
+                                    <span class="text-red-500"
+                                        >Dígito de control (5):</span
+                                    > Utilizado para verificar la precisión del código
+                                    de barras completo.
+                                </p>
+                                <p class="mx-11">
+                                    <span class="text-yellow-500"
+                                        >Código del producto (67890):</span
+                                    > Identifica el producto específico que está
+                                    siendo vendido.
+                                </p>
+                                <p class="mx-11">
+                                    <span class="text-green-500"
+                                        >Código del fabricante (12345):</span
+                                    > Identifica al fabricante del producto. Este
+                                    número es asignado por la organización GS1.
+                                </p>
+                                <p class="mx-11">
+                                    <span class="text-blue-500"
+                                        >Dígito del sistema (0):</span
+                                    > Indica que es un código EAN-13 estándar utilizado
+                                    internacionalmente.
+                                </p>
+                            </code>
+                        </div>
+                    </div>
+
+                    <p class="text-center mt-8">Lector de Código de Barra</p>
+                    <div
+                        id="interactive"
+                        class="viewport mockup-window border bg-base-300"
+                    >
+                    </div>
+
+                    <div id="result" class="text-center m-4">resuldo</div>
+
+                    <button id="btnScanner" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Iniciar escáner
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>   
+    
+</Layout>
+
+
+        <style>
+            #interactive {
+                width: 100%; /* Puedes ajustar el ancho al porcentaje o valor deseado */
+                max-width: 600px; /* Ancho máximo deseado, ajusta según tus necesidades */
+                height: 450px; /* Altura deseada, ajusta según tus necesidades */
+                border: 1px solid black; /* Borde opcional para visualización */
+                margin: 0 auto; /* Centrando el contenedor si es necesario */
+            }
+        </style>
+
+        <!-- Cargar la biblioteca QuaggaJS -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"
+            defer></script>
+            <script>
+
+           const btnScanner = document.getElementById("btnScanner");
+
+            btnScanner.addEventListener("click", () => {
+    // const texto = textoEntrada.value;
+                    if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+                        Quagga.init({
+                            inputStream: {
+                                name: "Live",
+                                type: "LiveStream",
+                                target: document.querySelector('#interactive')
+                            },
+                            decoder: {
+                                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
+                            }
+                        }, function (err) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                            console.log("Initialization finished. Ready to start");
+                            Quagga.start();
+                        });
+        
+                        Quagga.onDetected(function (result) {
+                            var code = result.codeResult.code;
+                            document.querySelector('#result').innerText = 'Código detectado: ' + code;
+        
+                            // Aquí puedes añadir lógica adicional como enviar el código a una API, etc.
+                            console.log('Código detectado:', code);
+                        });
+                    } else {
+                        alert("Tu navegador no soporta acceso a la cámara.");
+                    }
+                });
+                
+                
+                </script>
+
